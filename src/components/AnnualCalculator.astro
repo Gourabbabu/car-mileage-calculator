@@ -56,10 +56,16 @@
             <div class="input-wrapper">
                 <input type="number" id="annualFuelPrice" placeholder="per litre" step="0.01">
                 <select class="dropdown-unit" id="annualCurrency">
-                    <option value="₹">INR ₹</option>
-                    <option value="$">USD $</option>
-                    <option value="€">EUR €</option>
-                    <option value="£">GBP £</option>
+                    <option value="₹" data-price="104.83">INR ₹</option>
+                    <option value="$" data-price="0.92">USD $</option>
+                    <option value="€" data-price="1.78">EUR €</option>
+                    <option value="£" data-price="1.45">GBP £</option>
+                    <option value="A$" data-price="2.05">AUD A$</option>
+                    <option value="C$" data-price="1.72">CAD C$</option>
+                    <option value="¥" data-price="175">JPY ¥</option>
+                    <option value="د.إ" data-price="3.18">AED د.إ</option>
+                    <option value="S$" data-price="2.95">SGD S$</option>
+                    <option value="R$" data-price="5.90">BRL R$</option>
                 </select>
             </div>
         </div>
@@ -100,6 +106,16 @@
     const mpgIn = document.getElementById('vehicleMpg') as HTMLInputElement;
     const fuelPriceIn = document.getElementById('annualFuelPrice') as HTMLInputElement;
     const currSel = document.getElementById('annualCurrency') as HTMLSelectElement;
+
+    // Autofill fuel price on currency change
+    currSel?.addEventListener('change', () => {
+        const selected = currSel.options[currSel.selectedIndex];
+        const price = selected.getAttribute('data-price');
+        if (price) fuelPriceIn.value = price;
+    });
+    // Autofill on load
+    const initOpt = currSel?.options[currSel.selectedIndex];
+    if (initOpt && !fuelPriceIn.value) fuelPriceIn.value = initOpt.getAttribute('data-price') || '';
 
     let commUnit = 'km';
     let effUnit = 'kmpl';

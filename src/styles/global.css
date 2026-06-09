@@ -1,26 +1,30 @@
-/* V3Cars Style Theme */
+/* Clean Blue Theme */
 :root {
-    --primary: #f5b716;       /* The yellow accent */
-    --primary-hover: #e0a30b;
-    --bg-color: #f7f9fa;      /* Light grey background */
-    --text-color: #333333;
-    --text-muted: #666666;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #dbeafe;
+    --bg-color: #f8fafc;
+    --text-color: #1e293b;
+    --text-muted: #64748b;
     --border-color: #e2e8f0;
     --card-bg: #ffffff;
     --nav-bg: #ffffff;
-    --table-bg: #fafafa;
+    --table-bg: #f8fafc;
+    --btn-text: #ffffff;
 }
 
 [data-theme='dark'] {
-    --primary: #f5b716;
-    --primary-hover: #e0a30b;
-    --bg-color: #121212;
-    --text-color: #f1f1f1;
-    --text-muted: #aaaaaa;
-    --border-color: #333333;
-    --card-bg: #1e1e1e;
-    --nav-bg: #000000;
-    --table-bg: #2a2a2a;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --primary-light: #1e3a5f;
+    --bg-color: #0f172a;
+    --text-color: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-bg: #1e293b;
+    --nav-bg: #0f172a;
+    --table-bg: #1e293b;
+    --btn-text: #ffffff;
 }
 
 * {
@@ -188,13 +192,13 @@ h1 {
 
 .toggle-group button.active {
     background: var(--primary);
-    color: #000;
+    color: var(--btn-text);
     font-weight: bold;
 }
 .dropdown-unit {
-    background: var(--primary);
-    border: none;
-    color: #000;
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    color: var(--text-color);
     padding: 0.5rem;
     border-radius: 4px;
     cursor: pointer;
@@ -213,9 +217,10 @@ h1 {
     border: none;
     border-radius: 4px;
     background: var(--primary);
-    color: #000;
+    color: var(--btn-text);
     font-weight: bold;
     cursor: pointer;
+    transition: background 0.2s ease;
 }
 .btn:hover {
     background: var(--primary-hover);
@@ -242,7 +247,7 @@ h1 {
 
 .result-table th {
     background-color: var(--primary);
-    color: #000;
+    color: var(--btn-text);
     font-weight: bold;
 }
 
@@ -317,10 +322,10 @@ input[type=number] {
 /* Highlighted result rows */
 .highlight-row td {
     font-weight: bold;
-    background-color: #fef9e7;
+    background-color: var(--primary-light);
 }
 [data-theme='dark'] .highlight-row td {
-    background-color: #2c2300;
+    background-color: var(--primary-light);
 }
 
 /* Mobile responsive input rows */
