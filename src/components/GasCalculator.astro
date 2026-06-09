@@ -1,91 +1,147 @@
 ---
 // GasCalculator.astro
 ---
-<div class="calculator">
-    <div class="input-group">
-        <label for="startOdometer">Starting Odometer</label>
-        <input type="number" id="startOdometer" placeholder="e.g. 45000">
+<div class="calculator-card">
+    <div class="input-column">
+        <div class="input-row">
+            <label for="distance">Distance</label>
+            <div class="input-wrapper">
+                <input type="number" id="distance" placeholder="e.g. 360">
+                <div class="toggle-group">
+                    <button id="dist-km" class="active" data-unit="km">km</button>
+                    <button id="dist-miles" data-unit="miles">miles</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label for="fuel">Fuel</label>
+            <div class="input-wrapper">
+                <input type="number" id="fuel" placeholder="e.g. 7">
+                <div class="toggle-group">
+                    <button id="fuel-ltr" class="active" data-unit="Ltr">Ltr</button>
+                    <button id="fuel-gal" data-unit="Gal">Gal</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label for="price">Price</label>
+            <div class="input-wrapper">
+                <input type="number" id="price" placeholder="e.g. 104.83">
+                <select class="dropdown-unit">
+                    <option value="INR">INR</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" id="calcBtn">Calculate</button>
+            <button class="btn" id="resetBtn">Reset</button>
+        </div>
     </div>
-    <div class="input-group">
-        <label for="endOdometer">Ending Odometer</label>
-        <input type="number" id="endOdometer" placeholder="e.g. 45300">
-    </div>
-    <div class="input-group">
-        <label for="gallons">Gallons Added</label>
-        <input type="number" id="gallons" placeholder="e.g. 10.5">
-    </div>
-    
-    <div class="result-container">
-        <div class="result" id="gasResult"></div>
-        <button class="clear-btn" id="clearGas">Clear</button>
+
+    <div class="output-column">
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>Units</th>
+                    <th>Output</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Distance</td>
+                    <td id="out-distance">-</td>
+                </tr>
+                <tr>
+                    <td>Fuel</td>
+                    <td id="out-fuel">-</td>
+                </tr>
+                <tr>
+                    <td>Total Amount</td>
+                    <td id="out-total">-</td>
+                </tr>
+                <tr>
+                    <td>Fuel Cost Per <span id="dist-label">Kilometer</span></td>
+                    <td id="out-cost">-</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="final-result" id="out-mileage">
+            Mileage: 0
+        </div>
     </div>
 </div>
 
 <script>
-    const startInput = document.getElementById('startOdometer') as HTMLInputElement;
-    const endInput = document.getElementById('endOdometer') as HTMLInputElement;
-    const gallonsInput = document.getElementById('gallons') as HTMLInputElement;
-    const resultDiv = document.getElementById('gasResult') as HTMLDivElement;
-    const clearBtn = document.getElementById('clearGas') as HTMLButtonElement;
+    // Logic for Gas Calculator
+    const distInput = document.getElementById('distance') as HTMLInputElement;
+    const fuelInput = document.getElementById('fuel') as HTMLInputElement;
+    const priceInput = document.getElementById('price') as HTMLInputElement;
+    
+    const distBtns = [document.getElementById('dist-km'), document.getElementById('dist-miles')];
+    const fuelBtns = [document.getElementById('fuel-ltr'), document.getElementById('fuel-gal')];
+    
+    let currentDistUnit = 'km';
+    let currentFuelUnit = 'Ltr';
 
-    const STORAGE_KEY = 'milescalc_gas';
-
-    function calculate() {
-        const start = parseFloat(startInput.value);
-        const end = parseFloat(endInput.value);
-        const gallons = parseFloat(gallonsInput.value);
-        
-        // Save to local storage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            start: startInput.value,
-            end: endInput.value,
-            gallons: gallonsInput.value
-        }));
-
-        if (isNaN(start) || isNaN(end) || isNaN(gallons)) {
-            resultDiv.innerHTML = '';
-            clearBtn.style.display = (startInput.value || endInput.value || gallonsInput.value) ? 'inline-block' : 'none';
-            return;
-        }
-
-        if (gallons <= 0 || end <= start) {
-            resultDiv.innerHTML = '<span class="error">Ending odometer must be greater, and gallons positive.</span>';
-            clearBtn.style.display = 'inline-block';
-            return;
-        }
-        
-        const mpg = (end - start) / gallons;
-        resultDiv.innerHTML = `Your vehicle gets <strong>${mpg.toFixed(2)} MPG</strong>.`;
-        clearBtn.style.display = 'inline-block';
-    }
-
-    function loadSaved() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                if (data.start) startInput.value = data.start;
-                if (data.end) endInput.value = data.end;
-                if (data.gallons) gallonsInput.value = data.gallons;
-                calculate();
-            } catch(e) {}
-        }
-    }
-
-    // Event listeners for auto-calc
-    [startInput, endInput, gallonsInput].forEach(input => {
-        if(input) input.addEventListener('input', calculate);
+    // Unit Toggles
+    distBtns.forEach(btn => {
+        if(btn) btn.addEventListener('click', (e) => {
+            distBtns.forEach(b => b?.classList.remove('active'));
+            const target = e.target as HTMLButtonElement;
+            target.classList.add('active');
+            currentDistUnit = target.dataset.unit || 'km';
+            document.getElementById('dist-label')!.innerText = currentDistUnit === 'km' ? 'Kilometer' : 'Mile';
+        });
     });
 
-    if(clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            startInput.value = '';
-            endInput.value = '';
-            gallonsInput.value = '';
-            calculate(); // This will clear the result and save empty state
+    fuelBtns.forEach(btn => {
+        if(btn) btn.addEventListener('click', (e) => {
+            fuelBtns.forEach(b => b?.classList.remove('active'));
+            const target = e.target as HTMLButtonElement;
+            target.classList.add('active');
+            currentFuelUnit = target.dataset.unit || 'Ltr';
         });
-    }
+    });
 
-    // Load on init
-    loadSaved();
+    // Calculate
+    document.getElementById('calcBtn')?.addEventListener('click', () => {
+        const d = parseFloat(distInput.value);
+        const f = parseFloat(fuelInput.value);
+        const p = parseFloat(priceInput.value) || 0; // price can be 0 or empty
+
+        if (isNaN(d) || isNaN(f) || f <= 0) return;
+
+        // Output table updates
+        document.getElementById('out-distance')!.innerText = `${d} ${currentDistUnit}`;
+        document.getElementById('out-fuel')!.innerText = `${f} ${currentFuelUnit}`;
+        
+        const totalAmount = f * p;
+        document.getElementById('out-total')!.innerText = totalAmount > 0 ? totalAmount.toFixed(2) : '-';
+        
+        const costPerDist = totalAmount / d;
+        document.getElementById('out-cost')!.innerText = totalAmount > 0 ? costPerDist.toFixed(2) : '-';
+
+        const mileage = d / f;
+        let mileageLabel = currentDistUnit === 'km' ? (currentFuelUnit === 'Ltr' ? 'kmpl' : 'kmpg') : (currentFuelUnit === 'Ltr' ? 'mpl' : 'mpg');
+        
+        document.getElementById('out-mileage')!.innerText = `Mileage: ${mileage.toFixed(2)} ${mileageLabel}`;
+    });
+
+    // Reset
+    document.getElementById('resetBtn')?.addEventListener('click', () => {
+        distInput.value = '';
+        fuelInput.value = '';
+        priceInput.value = '';
+        document.getElementById('out-distance')!.innerText = '-';
+        document.getElementById('out-fuel')!.innerText = '-';
+        document.getElementById('out-total')!.innerText = '-';
+        document.getElementById('out-cost')!.innerText = '-';
+        document.getElementById('out-mileage')!.innerText = 'Mileage: 0';
+    });
 </script>

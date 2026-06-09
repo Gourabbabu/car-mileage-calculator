@@ -1,95 +1,78 @@
 ---
 // ReimbursementCalculator.astro
 ---
-<div class="calculator">
-    <div class="input-group">
-        <label for="businessMiles">Business Miles Driven</label>
-        <input type="number" id="businessMiles" placeholder="e.g. 150">
+<div class="calculator-card">
+    <div class="input-column">
+        <div class="input-row">
+            <label for="businessMiles">Distance</label>
+            <div class="input-wrapper">
+                <input type="number" id="businessMiles" placeholder="e.g. 150">
+                <select class="dropdown-unit"><option>miles</option><option>km</option></select>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label for="reimbursementRate">Rate</label>
+            <div class="input-wrapper">
+                <input type="number" id="reimbursementRate" placeholder="e.g. 0.67" step="0.01">
+                <select class="dropdown-unit"><option>$/mile</option></select>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" id="calcReimbBtn">Calculate</button>
+            <button class="btn" id="resetReimbBtn">Reset</button>
+        </div>
     </div>
-    <div class="input-group">
-        <label for="reimbursementRate">Reimbursement Rate ($/mile)</label>
-        <input type="number" id="reimbursementRate" placeholder="e.g. 0.67" step="0.01">
-    </div>
-    
-    <div class="result-container">
-        <div class="result" id="reimbursementResult"></div>
-        <button class="clear-btn" id="clearReimbursement">Clear</button>
+
+    <div class="output-column">
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>Units</th>
+                    <th>Output</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Business Distance</td>
+                    <td id="out-reimb-dist">-</td>
+                </tr>
+                <tr>
+                    <td>Rate Applied</td>
+                    <td id="out-rate">-</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="final-result" id="out-reimb-total">
+            Total: $0.00
+        </div>
     </div>
 </div>
 
 <script>
     const milesInput = document.getElementById('businessMiles') as HTMLInputElement;
     const rateInput = document.getElementById('reimbursementRate') as HTMLInputElement;
-    const resultDiv = document.getElementById('reimbursementResult') as HTMLDivElement;
-    const clearBtn = document.getElementById('clearReimbursement') as HTMLButtonElement;
 
-    const STORAGE_KEY = 'milescalc_reimb';
-
-    function calculate() {
-        const milesRaw = milesInput.value;
-        const rateRaw = rateInput.value;
-
-        // Save to local storage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            miles: milesRaw,
-            rate: rateRaw
-        }));
-
-        if (!milesRaw && !rateRaw) {
-            resultDiv.innerHTML = '';
-            clearBtn.style.display = 'none';
-            return;
-        }
-
-        const miles = parseFloat(milesRaw);
-        const rate = parseFloat(rateRaw);
+    document.getElementById('calcReimbBtn')?.addEventListener('click', () => {
+        const miles = parseFloat(milesInput.value);
+        const rate = parseFloat(rateInput.value);
         
         if (!isNaN(miles) && !isNaN(rate) && miles >= 0 && rate >= 0) {
+            document.getElementById('out-reimb-dist')!.innerText = miles.toString();
+            document.getElementById('out-rate')!.innerText = rate.toString();
+            
             const total = miles * rate;
-            resultDiv.innerHTML = `Total Reimbursement: <br/><strong>$${total.toFixed(2)}</strong>`;
-        } else if (milesRaw || rateRaw) {
-            resultDiv.innerHTML = '';
+            document.getElementById('out-reimb-total')!.innerText = `Total: $${total.toFixed(2)}`;
         }
-
-        clearBtn.style.display = 'inline-block';
-    }
-
-    function loadSaved() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        let hasRate = false;
-
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                if (data.miles) milesInput.value = data.miles;
-                if (data.rate) {
-                    rateInput.value = data.rate;
-                    hasRate = true;
-                }
-            } catch(e) {}
-        }
-        
-        // If no saved rate, default to 0.67
-        if (!hasRate) {
-            rateInput.value = "0.67";
-        }
-        
-        calculate();
-    }
-
-    // Event listeners for auto-calc
-    [milesInput, rateInput].forEach(input => {
-        if(input) input.addEventListener('input', calculate);
     });
 
-    if(clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            milesInput.value = '';
-            rateInput.value = "0.67"; // Reset to default instead of empty
-            calculate();
-        });
-    }
-
-    // Load on init
-    loadSaved();
+    document.getElementById('resetReimbBtn')?.addEventListener('click', () => {
+        milesInput.value = '';
+        rateInput.value = '';
+        document.getElementById('out-reimb-dist')!.innerText = '-';
+        document.getElementById('out-rate')!.innerText = '-';
+        document.getElementById('out-reimb-total')!.innerText = 'Total: $0.00';
+    });
 </script>

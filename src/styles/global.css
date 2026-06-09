@@ -1,24 +1,26 @@
-/* Elegant Monochromatic Theme */
+/* V3Cars Style Theme */
 :root {
-    --primary: #111827;       /* Near black for elegance */
-    --primary-hover: #374151; /* Dark slate */
-    --bg-color: #ffffff;      /* Pure white */
-    --text-color: #111827;
-    --text-muted: #6b7280;
-    --input-border: #e5e7eb;
+    --primary: #f5b716;       /* The yellow accent */
+    --primary-hover: #e0a30b;
+    --bg-color: #f7f9fa;      /* Light grey background */
+    --text-color: #333333;
+    --text-muted: #666666;
+    --border-color: #e2e8f0;
+    --card-bg: #ffffff;
     --nav-bg: #ffffff;
-    --seo-bg: #f9fafb;        /* Very subtle off-white */
+    --table-bg: #fafafa;
 }
 
 [data-theme='dark'] {
-    --bg-color: #030712;      /* Extremely deep slate/black */
-    --text-color: #f9fafb;
-    --text-muted: #9ca3af;
-    --primary: #f9fafb;       /* Pure white accents in dark mode */
-    --primary-hover: #d1d5db;
-    --input-border: #1f2937;
-    --nav-bg: #030712;
-    --seo-bg: #111827;
+    --primary: #f5b716;
+    --primary-hover: #e0a30b;
+    --bg-color: #121212;
+    --text-color: #f1f1f1;
+    --text-muted: #aaaaaa;
+    --border-color: #333333;
+    --card-bg: #1e1e1e;
+    --nav-bg: #000000;
+    --table-bg: #2a2a2a;
 }
 
 * {
@@ -28,30 +30,23 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: Arial, Helvetica, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
-    transition: background-color 0.4s ease, color 0.4s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
     min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Navigation Styles */
+/* Navigation */
 .navbar {
-    position: sticky;
-    top: 0;
-    width: 100%;
     background-color: var(--nav-bg);
-    border-bottom: 1px solid var(--input-border);
-    z-index: 100;
-    padding: 1.5rem 0;
-    transition: background-color 0.4s ease, border-color 0.4s ease;
+    border-bottom: 2px solid var(--primary);
+    padding: 1rem 0;
 }
 
 .nav-content {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -60,123 +55,208 @@ body {
 }
 
 .logo {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--text-color);
     text-decoration: none;
-    letter-spacing: -0.5px;
+    text-transform: uppercase;
+}
+.logo span {
+    color: var(--primary);
 }
 
 .nav-links {
     display: flex;
-    gap: 2.5rem;
+    gap: 1.5rem;
 }
 
 .nav-links a {
     color: var(--text-muted);
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.95rem;
-    transition: color 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
-
 .nav-links a:hover, .nav-links a.active {
-    color: var(--text-color);
+    color: var(--primary);
 }
 
 .theme-toggle {
     background: none;
     border: none;
-    font-size: 1.2rem;
     cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
+    font-size: 1.2rem;
     color: var(--text-color);
 }
 
-@media (max-width: 600px) {
-    .nav-content {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .nav-links {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
-    }
-}
-
-/* Hero & Calculator Section */
+/* Page Layout */
 .hero {
-    max-width: 600px;
-    margin: 3rem auto 4rem auto;
+    max-width: 1000px;
+    margin: 2rem auto;
     padding: 0 20px;
-    text-align: center;
 }
 
 h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    letter-spacing: -1.5px;
-    color: var(--text-color);
-}
-
-.subtitle {
-    font-size: 1.15rem;
-    color: var(--text-muted);
-    margin-bottom: 3rem;
-    font-weight: 400;
-    line-height: 1.5;
-}
-
-.calculator {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    text-align: left;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.input-group label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    text-align: center;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Instruction Box */
+.instruction-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.instruction-box p {
+    font-size: 0.95rem;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
 }
 
-.input-group input {
-    width: 100%;
-    padding: 0.5rem 0;
-    border: none;
-    border-bottom: 1px solid var(--input-border);
-    background-color: transparent;
+/* Calculator Grid */
+.calculator-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+@media (max-width: 768px) {
+    .calculator-card {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+/* Left Column: Inputs */
+.input-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.input-row label {
+    font-weight: bold;
+    width: 80px;
+    font-size: 0.9rem;
+}
+
+.input-wrapper {
+    display: flex;
+    flex: 1;
+    gap: 0.5rem;
+}
+
+.input-wrapper input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: transparent;
     color: var(--text-color);
-    font-size: 1.75rem;
-    font-weight: 400;
-    transition: border-color 0.4s ease;
+    text-align: center;
 }
 
-.input-group input:focus {
-    outline: none;
-    border-color: var(--primary);
+.toggle-group {
+    display: flex;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-.input-group input::placeholder {
-    color: var(--input-border);
-    font-weight: 300;
+.toggle-group button {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
 
-/* Hide increment/decrement arrows on number inputs */
+.toggle-group button.active {
+    background: var(--primary);
+    color: #000;
+    font-weight: bold;
+}
+.dropdown-unit {
+    background: var(--primary);
+    border: none;
+    color: #000;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.6rem 2rem;
+    border: none;
+    border-radius: 4px;
+    background: var(--primary);
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn:hover {
+    background: var(--primary-hover);
+}
+
+/* Right Column: Table */
+.output-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.result-table th, .result-table td {
+    border: 1px solid var(--border-color);
+    padding: 0.8rem;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.result-table th {
+    background-color: var(--primary);
+    color: #000;
+    font-weight: bold;
+}
+
+.result-table td {
+    background-color: var(--table-bg);
+}
+
+.final-result {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Hide number arrows */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
   -webkit-appearance: none; 
@@ -186,119 +266,15 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-.result-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 1rem;
-    min-height: 100px;
-}
-
-.clear-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.6;
-    transition: opacity 0.3s ease, color 0.3s ease;
-    display: none; 
-}
-
-.clear-btn:hover {
-    opacity: 1;
-    color: var(--text-color);
-}
-
-.result {
-    font-size: 1.1rem;
-    text-align: center;
-    color: var(--text-muted);
-    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.result strong {
-    display: block;
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 2.5rem;
-    letter-spacing: -1px;
-    margin-top: 0.5rem;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.error {
-    color: #ef4444;
-    font-size: 0.95rem;
-}
-
-/* SEO Content Section */
 .seo-section {
-    background-color: var(--seo-bg);
-    padding: 4rem 20px;
-    border-top: 1px solid var(--input-border);
-    transition: background-color 0.4s ease;
+    max-width: 1000px;
+    margin: 3rem auto;
+    padding: 0 20px;
 }
-
-.seo-content {
-    max-width: 680px;
-    margin: 0 auto;
-}
-
-.seo-content h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: var(--text-color);
-    letter-spacing: -0.5px;
-}
-
-.seo-content h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-top: 2.5rem;
+.seo-section h2, .seo-section h3 {
     margin-bottom: 1rem;
-    color: var(--text-color);
 }
-
-.seo-content p {
-    margin-bottom: 1.5rem;
-    font-size: 1.05rem;
+.seo-section p {
+    margin-bottom: 1rem;
     color: var(--text-muted);
-    line-height: 1.8;
-}
-
-.faq-item {
-    margin-bottom: 3rem;
-}
-
-/* Mobile Optimizations */
-@media (max-width: 600px) {
-    .hero {
-        margin: 2rem auto 3rem auto;
-    }
-    h1 {
-        font-size: 2.5rem;
-    }
-    .subtitle {
-        font-size: 1.05rem;
-        margin-bottom: 2.5rem;
-    }
-    .seo-section {
-        padding: 3rem 15px;
-    }
-    .input-group input {
-        font-size: 1.5rem;
-    }
-    .result strong {
-        font-size: 2rem;
-    }
 }

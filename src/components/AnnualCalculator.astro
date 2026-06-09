@@ -1,23 +1,61 @@
 ---
 // AnnualCalculator.astro
 ---
-<div class="calculator">
-    <div class="input-group">
-        <label for="dailyCommute">Daily Commute (Miles Round Trip)</label>
-        <input type="number" id="dailyCommute" placeholder="e.g. 30">
+<div class="calculator-card">
+    <div class="input-column">
+        <div class="input-row">
+            <label for="dailyCommute">Commute</label>
+            <div class="input-wrapper">
+                <input type="number" id="dailyCommute" placeholder="e.g. 30">
+                <select class="dropdown-unit"><option>miles</option><option>km</option></select>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label for="daysPerWeek">Work Days</label>
+            <div class="input-wrapper">
+                <input type="number" id="daysPerWeek" placeholder="e.g. 5" max="7">
+                <select class="dropdown-unit"><option>days/wk</option></select>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label for="weekendMiles">Weekend</label>
+            <div class="input-wrapper">
+                <input type="number" id="weekendMiles" placeholder="e.g. 50">
+                <select class="dropdown-unit"><option>miles</option><option>km</option></select>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" id="calcAnnualBtn">Calculate</button>
+            <button class="btn" id="resetAnnualBtn">Reset</button>
+        </div>
     </div>
-    <div class="input-group">
-        <label for="daysPerWeek">Work Days Per Week</label>
-        <input type="number" id="daysPerWeek" placeholder="e.g. 5" max="7">
-    </div>
-    <div class="input-group">
-        <label for="weekendMiles">Average Weekend Miles</label>
-        <input type="number" id="weekendMiles" placeholder="e.g. 50">
-    </div>
-    
-    <div class="result-container">
-        <div class="result" id="annualResult"></div>
-        <button class="clear-btn" id="clearAnnual">Clear</button>
+
+    <div class="output-column">
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>Units</th>
+                    <th>Output</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Weekly Work Commute</td>
+                    <td id="out-work">-</td>
+                </tr>
+                <tr>
+                    <td>Weekly Total</td>
+                    <td id="out-weekly">-</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="final-result" id="out-annual">
+            Annual: 0
+        </div>
     </div>
 </div>
 
@@ -25,72 +63,27 @@
     const commuteInput = document.getElementById('dailyCommute') as HTMLInputElement;
     const daysInput = document.getElementById('daysPerWeek') as HTMLInputElement;
     const weekendInput = document.getElementById('weekendMiles') as HTMLInputElement;
-    const resultDiv = document.getElementById('annualResult') as HTMLDivElement;
-    const clearBtn = document.getElementById('clearAnnual') as HTMLButtonElement;
 
-    const STORAGE_KEY = 'milescalc_annual';
-
-    function calculate() {
-        const commuteRaw = commuteInput.value;
-        const daysRaw = daysInput.value;
-        const weekendRaw = weekendInput.value;
-
-        // Save to local storage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            commute: commuteRaw,
-            days: daysRaw,
-            weekend: weekendRaw
-        }));
-
-        if (!commuteRaw && !daysRaw && !weekendRaw) {
-            resultDiv.innerHTML = '';
-            clearBtn.style.display = 'none';
-            return;
-        }
-
-        const commute = parseFloat(commuteRaw) || 0;
-        const days = parseFloat(daysRaw) || 0;
-        const weekend = parseFloat(weekendRaw) || 0;
+    document.getElementById('calcAnnualBtn')?.addEventListener('click', () => {
+        const commute = parseFloat(commuteInput.value) || 0;
+        const days = parseFloat(daysInput.value) || 0;
+        const weekend = parseFloat(weekendInput.value) || 0;
         
-        const weeklyMiles = (commute * days) + weekend;
+        const workMiles = commute * days;
+        const weeklyMiles = workMiles + weekend;
         const annualMiles = weeklyMiles * 52;
         
-        if(annualMiles > 0) {
-            resultDiv.innerHTML = `Estimated Annual Driving: <br/><strong>${annualMiles.toLocaleString()} miles/year</strong>`;
-        } else {
-            resultDiv.innerHTML = '';
-        }
-        
-        clearBtn.style.display = 'inline-block';
-    }
-
-    function loadSaved() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                if (data.commute) commuteInput.value = data.commute;
-                if (data.days) daysInput.value = data.days;
-                if (data.weekend) weekendInput.value = data.weekend;
-                calculate();
-            } catch(e) {}
-        }
-    }
-
-    // Event listeners for auto-calc
-    [commuteInput, daysInput, weekendInput].forEach(input => {
-        if(input) input.addEventListener('input', calculate);
+        document.getElementById('out-work')!.innerText = workMiles > 0 ? workMiles.toString() : '-';
+        document.getElementById('out-weekly')!.innerText = weeklyMiles > 0 ? weeklyMiles.toString() : '-';
+        document.getElementById('out-annual')!.innerText = `Annual: ${annualMiles.toLocaleString()}`;
     });
 
-    if(clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            commuteInput.value = '';
-            daysInput.value = '';
-            weekendInput.value = '';
-            calculate();
-        });
-    }
-
-    // Load on init
-    loadSaved();
+    document.getElementById('resetAnnualBtn')?.addEventListener('click', () => {
+        commuteInput.value = '';
+        daysInput.value = '';
+        weekendInput.value = '';
+        document.getElementById('out-work')!.innerText = '-';
+        document.getElementById('out-weekly')!.innerText = '-';
+        document.getElementById('out-annual')!.innerText = 'Annual: 0';
+    });
 </script>
