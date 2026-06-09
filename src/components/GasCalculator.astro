@@ -87,12 +87,19 @@
     // Autofill fuel price on currency change
     currencySelect?.addEventListener('change', () => {
         const selected = currencySelect.options[currencySelect.selectedIndex];
-        const price = selected.getAttribute('data-price');
-        if (price) priceInput.value = price;
+        const basePriceLtr = parseFloat(selected.getAttribute('data-price') || '0');
+        if (basePriceLtr) {
+            priceInput.value = fuelUnit === 'Gal' ? (basePriceLtr * GAL_TO_LTR).toFixed(2) : basePriceLtr.toFixed(2);
+        }
     });
     // Autofill on page load
     const initOption = currencySelect?.options[currencySelect.selectedIndex];
-    if (initOption && !priceInput.value) priceInput.value = initOption.getAttribute('data-price') || '';
+    if (initOption && !priceInput.value) {
+        const basePriceLtr = parseFloat(initOption.getAttribute('data-price') || '0');
+        if (basePriceLtr) {
+            priceInput.value = fuelUnit === 'Gal' ? (basePriceLtr * GAL_TO_LTR).toFixed(2) : basePriceLtr.toFixed(2);
+        }
+    }
 
     // Toggle logic
     function setupToggle(btnIds: string[], callback: (unit: string) => void) {
@@ -107,7 +114,16 @@
     }
 
     setupToggle(['dist-km', 'dist-miles'], (u) => distUnit = u === 'km' ? 'km' : 'miles');
-    setupToggle(['fuel-ltr', 'fuel-gal'], (u) => fuelUnit = u === 'Ltr' ? 'Ltr' : 'Gal');
+    setupToggle(['fuel-ltr', 'fuel-gal'], (u) => {
+        const newUnit = u === 'Ltr' ? 'Ltr' : 'Gal';
+        if (newUnit !== fuelUnit) {
+            const currentPrice = parseFloat(priceInput.value);
+            if (!isNaN(currentPrice)) {
+                priceInput.value = newUnit === 'Gal' ? (currentPrice * GAL_TO_LTR).toFixed(2) : (currentPrice / GAL_TO_LTR).toFixed(2);
+            }
+            fuelUnit = newUnit;
+        }
+    });
 
     document.getElementById('calcBtn')?.addEventListener('click', () => {
         const rawDist = parseFloat(distInput.value);

@@ -55,6 +55,10 @@
             <label>Fuel Price</label>
             <div class="input-wrapper">
                 <input type="number" id="annualFuelPrice" placeholder="per litre" step="0.01">
+                <div class="toggle-group">
+                    <button id="price-ltr" class="active">/L</button>
+                    <button id="price-gal">/Gal</button>
+                </div>
                 <select class="dropdown-unit" id="annualCurrency">
                     <option value="₹" data-price="102.12">INR ₹</option>
                     <option value="$" data-price="1.11">USD $</option>
@@ -107,15 +111,25 @@
     const fuelPriceIn = document.getElementById('annualFuelPrice') as HTMLInputElement;
     const currSel = document.getElementById('annualCurrency') as HTMLSelectElement;
 
+    let priceUnit = 'Ltr';
+    const GAL_TO_LTR = 3.78541;
+
     // Autofill fuel price on currency change
     currSel?.addEventListener('change', () => {
         const selected = currSel.options[currSel.selectedIndex];
-        const price = selected.getAttribute('data-price');
-        if (price) fuelPriceIn.value = price;
+        const basePriceLtr = parseFloat(selected.getAttribute('data-price') || '0');
+        if (basePriceLtr) {
+            fuelPriceIn.value = priceUnit === 'Gal' ? (basePriceLtr * GAL_TO_LTR).toFixed(2) : basePriceLtr.toFixed(2);
+        }
     });
     // Autofill on load
     const initOpt = currSel?.options[currSel.selectedIndex];
-    if (initOpt && !fuelPriceIn.value) fuelPriceIn.value = initOpt.getAttribute('data-price') || '';
+    if (initOpt && !fuelPriceIn.value) {
+        const basePriceLtr = parseFloat(initOpt.getAttribute('data-price') || '0');
+        if (basePriceLtr) {
+            fuelPriceIn.value = priceUnit === 'Gal' ? (basePriceLtr * GAL_TO_LTR).toFixed(2) : basePriceLtr.toFixed(2);
+        }
+    }
 
     let commUnit = 'km';
     let effUnit = 'kmpl';
@@ -130,6 +144,17 @@
     }
     togSetup(['comm-km','comm-miles'], u => commUnit = u === 'km' ? 'km' : 'miles');
     togSetup(['eff-kmpl','eff-mpg'], u => effUnit = u);
+    togSetup(['price-ltr','price-gal'], u => {
+        const newUnit = u === '/L' ? 'Ltr' : 'Gal';
+        if (newUnit !== priceUnit) {
+            const currentPrice = parseFloat(fuelPriceIn.value);
+            if (!isNaN(currentPrice)) {
+                fuelPriceIn.value = newUnit === 'Gal' ? (currentPrice * GAL_TO_LTR).toFixed(2) : (currentPrice / GAL_TO_LTR).toFixed(2);
+            }
+            fuelPriceIn.placeholder = newUnit === 'Gal' ? 'per gallon' : 'per litre';
+            priceUnit = newUnit;
+        }
+    });
 
     document.getElementById('calcAnnualBtn')?.addEventListener('click', () => {
         const commute = parseFloat(commuteIn.value) || 0;
@@ -165,9 +190,13 @@
         if (effRaw > 0) {
             const kmpl = effUnit === 'kmpl' ? effRaw : (effRaw * MI_KM) / 3.78541; // mpg to kmpl
             const annualLitres = annualKm / kmpl;
+            const annualGallons = annualLitres / GAL_TO_LTR;
+            
             document.getElementById('out-annualFuel')!.textContent = annualLitres.toFixed(0) + ' litres';
             if (fuelPrice > 0) {
-                document.getElementById('out-annualCost')!.textContent = sym + (annualLitres * fuelPrice).toLocaleString(undefined, {maximumFractionDigits: 0});
+                // If price was entered in per gallon, multiply by annualGallons. If per litre, use annualLitres
+                const totalCost = priceUnit === 'Gal' ? annualGallons * fuelPrice : annualLitres * fuelPrice;
+                document.getElementById('out-annualCost')!.textContent = sym + totalCost.toLocaleString(undefined, {maximumFractionDigits: 0});
             } else {
                 document.getElementById('out-annualCost')!.textContent = '-';
             }
