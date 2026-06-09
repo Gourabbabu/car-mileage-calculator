@@ -14,25 +14,78 @@
         <label for="gallons">Gallons Added</label>
         <input type="number" id="gallons" placeholder="e.g. 10.5">
     </div>
-    <button class="btn primary-btn" id="calcGas">Calculate MPG</button>
-    <div class="result" id="gasResult"></div>
+    
+    <div class="result-container">
+        <div class="result" id="gasResult"></div>
+        <button class="clear-btn" id="clearGas">Clear</button>
+    </div>
 </div>
 
 <script>
-    const calcGasBtn = document.getElementById('calcGas');
-    if(calcGasBtn) {
-        calcGasBtn.addEventListener('click', () => {
-            const start = parseFloat((document.getElementById('startOdometer') as HTMLInputElement).value);
-            const end = parseFloat((document.getElementById('endOdometer') as HTMLInputElement).value);
-            const gallons = parseFloat((document.getElementById('gallons') as HTMLInputElement).value);
-            
-            if (isNaN(start) || isNaN(end) || isNaN(gallons) || gallons <= 0 || end <= start) {
-                document.getElementById('gasResult')!.innerHTML = '<span class="error">Please enter valid positive numbers. Ending odometer must be greater than starting.</span>';
-                return;
-            }
-            
-            const mpg = (end - start) / gallons;
-            document.getElementById('gasResult')!.innerHTML = `Your vehicle gets <strong>${mpg.toFixed(2)} MPG</strong>.`;
+    const startInput = document.getElementById('startOdometer') as HTMLInputElement;
+    const endInput = document.getElementById('endOdometer') as HTMLInputElement;
+    const gallonsInput = document.getElementById('gallons') as HTMLInputElement;
+    const resultDiv = document.getElementById('gasResult') as HTMLDivElement;
+    const clearBtn = document.getElementById('clearGas') as HTMLButtonElement;
+
+    const STORAGE_KEY = 'milescalc_gas';
+
+    function calculate() {
+        const start = parseFloat(startInput.value);
+        const end = parseFloat(endInput.value);
+        const gallons = parseFloat(gallonsInput.value);
+        
+        // Save to local storage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            start: startInput.value,
+            end: endInput.value,
+            gallons: gallonsInput.value
+        }));
+
+        if (isNaN(start) || isNaN(end) || isNaN(gallons)) {
+            resultDiv.innerHTML = '';
+            clearBtn.style.display = (startInput.value || endInput.value || gallonsInput.value) ? 'inline-block' : 'none';
+            return;
+        }
+
+        if (gallons <= 0 || end <= start) {
+            resultDiv.innerHTML = '<span class="error">Ending odometer must be greater, and gallons positive.</span>';
+            clearBtn.style.display = 'inline-block';
+            return;
+        }
+        
+        const mpg = (end - start) / gallons;
+        resultDiv.innerHTML = `Your vehicle gets <strong>${mpg.toFixed(2)} MPG</strong>.`;
+        clearBtn.style.display = 'inline-block';
+    }
+
+    function loadSaved() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.start) startInput.value = data.start;
+                if (data.end) endInput.value = data.end;
+                if (data.gallons) gallonsInput.value = data.gallons;
+                calculate();
+            } catch(e) {}
+        }
+    }
+
+    // Event listeners for auto-calc
+    [startInput, endInput, gallonsInput].forEach(input => {
+        if(input) input.addEventListener('input', calculate);
+    });
+
+    if(clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            startInput.value = '';
+            endInput.value = '';
+            gallonsInput.value = '';
+            calculate(); // This will clear the result and save empty state
         });
     }
+
+    // Load on init
+    loadSaved();
 </script>

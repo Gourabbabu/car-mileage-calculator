@@ -8,26 +8,88 @@
     </div>
     <div class="input-group">
         <label for="reimbursementRate">Reimbursement Rate ($/mile)</label>
-        <input type="number" id="reimbursementRate" placeholder="e.g. 0.67" step="0.01" value="0.67">
+        <input type="number" id="reimbursementRate" placeholder="e.g. 0.67" step="0.01">
     </div>
-    <button class="btn primary-btn" id="calcReimbursement">Calculate Reimbursement</button>
-    <div class="result" id="reimbursementResult"></div>
+    
+    <div class="result-container">
+        <div class="result" id="reimbursementResult"></div>
+        <button class="clear-btn" id="clearReimbursement">Clear</button>
+    </div>
 </div>
 
 <script>
-    const calcReimbursementBtn = document.getElementById('calcReimbursement');
-    if(calcReimbursementBtn) {
-        calcReimbursementBtn.addEventListener('click', () => {
-            const miles = parseFloat((document.getElementById('businessMiles') as HTMLInputElement).value);
-            const rate = parseFloat((document.getElementById('reimbursementRate') as HTMLInputElement).value);
-            
-            if (isNaN(miles) || isNaN(rate) || miles <= 0 || rate <= 0) {
-                document.getElementById('reimbursementResult')!.innerHTML = '<span class="error">Please enter valid positive numbers.</span>';
-                return;
-            }
-            
+    const milesInput = document.getElementById('businessMiles') as HTMLInputElement;
+    const rateInput = document.getElementById('reimbursementRate') as HTMLInputElement;
+    const resultDiv = document.getElementById('reimbursementResult') as HTMLDivElement;
+    const clearBtn = document.getElementById('clearReimbursement') as HTMLButtonElement;
+
+    const STORAGE_KEY = 'milescalc_reimb';
+
+    function calculate() {
+        const milesRaw = milesInput.value;
+        const rateRaw = rateInput.value;
+
+        // Save to local storage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            miles: milesRaw,
+            rate: rateRaw
+        }));
+
+        if (!milesRaw && !rateRaw) {
+            resultDiv.innerHTML = '';
+            clearBtn.style.display = 'none';
+            return;
+        }
+
+        const miles = parseFloat(milesRaw);
+        const rate = parseFloat(rateRaw);
+        
+        if (!isNaN(miles) && !isNaN(rate) && miles >= 0 && rate >= 0) {
             const total = miles * rate;
-            document.getElementById('reimbursementResult')!.innerHTML = `Total Reimbursement: <strong>$${total.toFixed(2)}</strong>.`;
+            resultDiv.innerHTML = `Total Reimbursement: <br/><strong>$${total.toFixed(2)}</strong>`;
+        } else if (milesRaw || rateRaw) {
+            resultDiv.innerHTML = '';
+        }
+
+        clearBtn.style.display = 'inline-block';
+    }
+
+    function loadSaved() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        let hasRate = false;
+
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.miles) milesInput.value = data.miles;
+                if (data.rate) {
+                    rateInput.value = data.rate;
+                    hasRate = true;
+                }
+            } catch(e) {}
+        }
+        
+        // If no saved rate, default to 0.67
+        if (!hasRate) {
+            rateInput.value = "0.67";
+        }
+        
+        calculate();
+    }
+
+    // Event listeners for auto-calc
+    [milesInput, rateInput].forEach(input => {
+        if(input) input.addEventListener('input', calculate);
+    });
+
+    if(clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            milesInput.value = '';
+            rateInput.value = "0.67"; // Reset to default instead of empty
+            calculate();
         });
     }
+
+    // Load on init
+    loadSaved();
 </script>

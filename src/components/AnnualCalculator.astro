@@ -14,22 +14,83 @@
         <label for="weekendMiles">Average Weekend Miles</label>
         <input type="number" id="weekendMiles" placeholder="e.g. 50">
     </div>
-    <button class="btn primary-btn" id="calcAnnual">Estimate Annual Mileage</button>
-    <div class="result" id="annualResult"></div>
+    
+    <div class="result-container">
+        <div class="result" id="annualResult"></div>
+        <button class="clear-btn" id="clearAnnual">Clear</button>
+    </div>
 </div>
 
 <script>
-    const calcAnnualBtn = document.getElementById('calcAnnual');
-    if(calcAnnualBtn) {
-        calcAnnualBtn.addEventListener('click', () => {
-            const commute = parseFloat((document.getElementById('dailyCommute') as HTMLInputElement).value) || 0;
-            const days = parseFloat((document.getElementById('daysPerWeek') as HTMLInputElement).value) || 0;
-            const weekend = parseFloat((document.getElementById('weekendMiles') as HTMLInputElement).value) || 0;
-            
-            const weeklyMiles = (commute * days) + weekend;
-            const annualMiles = weeklyMiles * 52;
-            
-            document.getElementById('annualResult')!.innerHTML = `Estimated Annual Driving: <strong>${annualMiles.toLocaleString()} miles/year</strong>.`;
+    const commuteInput = document.getElementById('dailyCommute') as HTMLInputElement;
+    const daysInput = document.getElementById('daysPerWeek') as HTMLInputElement;
+    const weekendInput = document.getElementById('weekendMiles') as HTMLInputElement;
+    const resultDiv = document.getElementById('annualResult') as HTMLDivElement;
+    const clearBtn = document.getElementById('clearAnnual') as HTMLButtonElement;
+
+    const STORAGE_KEY = 'milescalc_annual';
+
+    function calculate() {
+        const commuteRaw = commuteInput.value;
+        const daysRaw = daysInput.value;
+        const weekendRaw = weekendInput.value;
+
+        // Save to local storage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            commute: commuteRaw,
+            days: daysRaw,
+            weekend: weekendRaw
+        }));
+
+        if (!commuteRaw && !daysRaw && !weekendRaw) {
+            resultDiv.innerHTML = '';
+            clearBtn.style.display = 'none';
+            return;
+        }
+
+        const commute = parseFloat(commuteRaw) || 0;
+        const days = parseFloat(daysRaw) || 0;
+        const weekend = parseFloat(weekendRaw) || 0;
+        
+        const weeklyMiles = (commute * days) + weekend;
+        const annualMiles = weeklyMiles * 52;
+        
+        if(annualMiles > 0) {
+            resultDiv.innerHTML = `Estimated Annual Driving: <br/><strong>${annualMiles.toLocaleString()} miles/year</strong>`;
+        } else {
+            resultDiv.innerHTML = '';
+        }
+        
+        clearBtn.style.display = 'inline-block';
+    }
+
+    function loadSaved() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.commute) commuteInput.value = data.commute;
+                if (data.days) daysInput.value = data.days;
+                if (data.weekend) weekendInput.value = data.weekend;
+                calculate();
+            } catch(e) {}
+        }
+    }
+
+    // Event listeners for auto-calc
+    [commuteInput, daysInput, weekendInput].forEach(input => {
+        if(input) input.addEventListener('input', calculate);
+    });
+
+    if(clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            commuteInput.value = '';
+            daysInput.value = '';
+            weekendInput.value = '';
+            calculate();
         });
     }
+
+    // Load on init
+    loadSaved();
 </script>
