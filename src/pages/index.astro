@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+import Calculator from '../components/Calculator.astro';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Mileage Calculator | Gas, Annual & Reimbursement Calculator 2026</title>
+    <meta name="description" content="Free online car mileage calculator for 2026. Calculate your gas mileage (MPG), estimate your annual mileage, and compute your business mileage reimbursement easily.">
+    <meta name="keywords" content="car mileage calculator, gas mileage calculator, mileage calculator 2026, fuel mileage calculator, annual mileage calculator, mileage calculator reimbursement, google mileage calculator, driving mileage calculator">
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">🌙</button>
+    <div class="container">
+        <h1>Car Mileage Calculator</h1>
+        
+        <Calculator />
+
+        <div class="seo-content glass-card">
+            <h2>The Ultimate Car Mileage Calculator for 2026</h2>
+            <p>Welcome to the most comprehensive <strong>car mileage calculator</strong> available online. Whether you are tracking your vehicle's fuel efficiency, estimating your driving habits for the year, or calculating business expenses, our 3-in-1 tool has you covered. With fuel prices constantly fluctuating, knowing your exact <strong>gas mileage</strong> is crucial for budgeting and saving money.</p>
+            
+            <h3>How to Calculate Gas Mileage (MPG)</h3>
+            <p>Our <strong>fuel mileage calculator</strong> makes it incredibly easy to find out how many miles per gallon your vehicle is actually getting. Simply input your starting odometer reading when you fill up, your ending odometer reading at your next fill-up, and the number of gallons added. The formula used is simple: <em>(Ending Odometer - Starting Odometer) ÷ Gallons Added</em>. Tracking this over time can alert you to potential maintenance issues if your MPG suddenly drops.</p>
+
+            <h3>Using the Annual Mileage Calculator</h3>
+            <p>Are you looking to buy a new car, sign a lease, or get a new insurance quote? Knowing your annual mileage is essential. Car leases typically come with strict mileage limits (e.g., 10,000 or 12,000 miles per year). Our <strong>annual mileage calculator</strong> takes the guesswork out of the equation. By entering your average daily commute and weekend driving, you can accurately project your yearly total and avoid costly overage penalties.</p>
+
+            <h3>Business Mileage Calculator Reimbursement</h3>
+            <p>If you drive your personal vehicle for business purposes, you are likely entitled to a <strong>mileage calculator reimbursement</strong>. The IRS sets a standard mileage rate each year (currently $0.67 for 2024, expected updates for 2025/2026). Our built-in reimbursement tool lets you quickly multiply your business miles by the standard rate (or your company's custom rate) to generate your exact expense report amount.</p>
+            
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3>What is a good gas mileage?</h3>
+                <p>A "good" gas mileage depends on the type of vehicle. For compact cars and sedans, 25-30 MPG in the city and 30-40 MPG on the highway is considered good. For SUVs and trucks, 20-25 MPG is more common. Hybrids and EVs can achieve the equivalent of 50+ MPG.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>How do I calculate reimbursement for driving?</h3>
+                <p>To calculate your <strong>driving mileage calculator</strong> reimbursement, record the total miles driven exclusively for business purposes. Then, multiply those miles by the IRS standard mileage rate or your employer's specific rate. For example, 100 miles × $0.67 = $67.00 reimbursement.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Why is my car's gas mileage decreasing?</h3>
+                <p>A drop in fuel efficiency can be caused by several factors: underinflated tires, dirty air filters, faulty spark plugs, carrying excess weight, or aggressive driving habits. Regular maintenance is the best way to preserve your vehicle's MPG.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle logic
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            themeToggle.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerText = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            if (theme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerText = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.innerText = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>
