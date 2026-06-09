@@ -3,24 +3,24 @@
     --primary-hover: #4f46e5;
     --bg-color: #f8fafc;
     --text-color: #0f172a;
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --card-border: rgba(255, 255, 255, 0.5);
-    --input-bg: #ffffff;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --input-bg: #f1f5f9;
     --input-border: #cbd5e1;
-    --nav-bg: rgba(255, 255, 255, 0.8);
+    --nav-bg: #ffffff;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme='dark'] {
     --bg-color: #0f172a;
     --text-color: #f8fafc;
-    --card-bg: rgba(30, 41, 59, 0.7);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --primary: #60a5fa;
-    --primary-hover: #3b82f6;
-    --input-bg: #1e293b;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --input-bg: #0f172a;
     --input-border: #334155;
-    --nav-bg: rgba(15, 23, 42, 0.8);
+    --nav-bg: #1e293b;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
@@ -30,8 +30,6 @@
     top: 0;
     width: 100%;
     background-color: var(--nav-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--card-border);
     z-index: 100;
     padding: 1rem 0;
@@ -89,9 +87,7 @@ body {
 
 .glass-card {
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--card-border);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: var(--shadow);
@@ -117,9 +113,7 @@ h1 {
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, var(--primary), #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--primary);
 }
 
 h2 {
