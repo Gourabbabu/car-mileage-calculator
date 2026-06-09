@@ -1,78 +1,128 @@
 ---
-// ReimbursementCalculator.astro
+// ReimbursementCalculator.astro - Comprehensive Reimbursement Tool
 ---
 <div class="calculator-card">
     <div class="input-column">
         <div class="input-row">
-            <label for="businessMiles">Distance</label>
+            <label>Distance</label>
             <div class="input-wrapper">
-                <input type="number" id="businessMiles" placeholder="e.g. 150">
-                <select class="dropdown-unit"><option>miles</option><option>km</option></select>
+                <input type="number" id="reimbDist" placeholder="per trip">
+                <div class="toggle-group">
+                    <button id="reimb-km">km</button>
+                    <button id="reimb-miles" class="active">miles</button>
+                </div>
             </div>
         </div>
 
         <div class="input-row">
-            <label for="reimbursementRate">Rate</label>
+            <label>Trips</label>
             <div class="input-wrapper">
-                <input type="number" id="reimbursementRate" placeholder="e.g. 0.67" step="0.01">
-                <select class="dropdown-unit"><option>$/mile</option></select>
+                <input type="number" id="numTrips" placeholder="e.g. 1" value="1">
+                <span class="unit-label">trips</span>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label>Rate</label>
+            <div class="input-wrapper">
+                <input type="number" id="reimbRate" placeholder="e.g. 0.67" step="0.01">
+                <select class="dropdown-unit" id="reimbCurrency">
+                    <option value="$">USD $</option>
+                    <option value="₹">INR ₹</option>
+                    <option value="€">EUR €</option>
+                    <option value="£">GBP £</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label>Per</label>
+            <div class="input-wrapper">
+                <select class="dropdown-unit" id="ratePer" style="flex:1;">
+                    <option value="mile">per mile</option>
+                    <option value="km">per km</option>
+                </select>
             </div>
         </div>
 
         <div class="action-buttons">
             <button class="btn" id="calcReimbBtn">Calculate</button>
-            <button class="btn" id="resetReimbBtn">Reset</button>
+            <button class="btn btn-secondary" id="resetReimbBtn">Reset</button>
         </div>
     </div>
 
     <div class="output-column">
         <table class="result-table">
             <thead>
-                <tr>
-                    <th>Units</th>
-                    <th>Output</th>
-                </tr>
+                <tr><th>Metric</th><th>Output</th></tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Business Distance</td>
-                    <td id="out-reimb-dist">-</td>
-                </tr>
-                <tr>
-                    <td>Rate Applied</td>
-                    <td id="out-rate">-</td>
-                </tr>
+                <tr><td>Distance per Trip (km)</td><td id="out-r-km">-</td></tr>
+                <tr><td>Distance per Trip (miles)</td><td id="out-r-mi">-</td></tr>
+                <tr><td>Number of Trips</td><td id="out-r-trips">-</td></tr>
+                <tr><td>Total Distance (km)</td><td id="out-r-totalKm">-</td></tr>
+                <tr><td>Total Distance (miles)</td><td id="out-r-totalMi">-</td></tr>
+                <tr><td>Rate Applied</td><td id="out-r-rate">-</td></tr>
+                <tr><td>Per Trip Reimbursement</td><td id="out-r-perTrip">-</td></tr>
+                <tr class="highlight-row"><td>Total Reimbursement</td><td id="out-r-total">-</td></tr>
             </tbody>
         </table>
-        
-        <div class="final-result" id="out-reimb-total">
-            Total: $0.00
-        </div>
     </div>
 </div>
 
 <script>
-    const milesInput = document.getElementById('businessMiles') as HTMLInputElement;
-    const rateInput = document.getElementById('reimbursementRate') as HTMLInputElement;
+    const KM_MI = 0.621371;
+    const MI_KM = 1.60934;
+
+    const distIn = document.getElementById('reimbDist') as HTMLInputElement;
+    const tripsIn = document.getElementById('numTrips') as HTMLInputElement;
+    const rateIn = document.getElementById('reimbRate') as HTMLInputElement;
+    const currIn = document.getElementById('reimbCurrency') as HTMLSelectElement;
+    const ratePerIn = document.getElementById('ratePer') as HTMLSelectElement;
+
+    let rDistUnit = 'miles';
+
+    const rBtns = ['reimb-km','reimb-miles'].map(i => document.getElementById(i));
+    rBtns.forEach(b => b?.addEventListener('click', () => {
+        rBtns.forEach(x => x?.classList.remove('active'));
+        b?.classList.add('active');
+        rDistUnit = b?.textContent?.trim() === 'km' ? 'km' : 'miles';
+    }));
 
     document.getElementById('calcReimbBtn')?.addEventListener('click', () => {
-        const miles = parseFloat(milesInput.value);
-        const rate = parseFloat(rateInput.value);
-        
-        if (!isNaN(miles) && !isNaN(rate) && miles >= 0 && rate >= 0) {
-            document.getElementById('out-reimb-dist')!.innerText = miles.toString();
-            document.getElementById('out-rate')!.innerText = rate.toString();
-            
-            const total = miles * rate;
-            document.getElementById('out-reimb-total')!.innerText = `Total: $${total.toFixed(2)}`;
-        }
+        const rawDist = parseFloat(distIn.value);
+        const trips = parseFloat(tripsIn.value) || 1;
+        const rate = parseFloat(rateIn.value);
+        const sym = currIn.value;
+        const ratePer = ratePerIn.value; // 'mile' or 'km'
+
+        if (isNaN(rawDist) || isNaN(rate) || rawDist <= 0 || rate <= 0) return;
+
+        // Normalize
+        const perTripKm = rDistUnit === 'km' ? rawDist : rawDist * MI_KM;
+        const perTripMi = rDistUnit === 'miles' ? rawDist : rawDist * KM_MI;
+        const totalKm = perTripKm * trips;
+        const totalMi = perTripMi * trips;
+
+        // Calculate reimbursement based on the rate's unit
+        const rateDistPerTrip = ratePer === 'mile' ? perTripMi : perTripKm;
+        const perTripAmount = rateDistPerTrip * rate;
+        const totalAmount = perTripAmount * trips;
+
+        document.getElementById('out-r-km')!.textContent = perTripKm.toFixed(2) + ' km';
+        document.getElementById('out-r-mi')!.textContent = perTripMi.toFixed(2) + ' miles';
+        document.getElementById('out-r-trips')!.textContent = trips.toString();
+        document.getElementById('out-r-totalKm')!.textContent = totalKm.toFixed(2) + ' km';
+        document.getElementById('out-r-totalMi')!.textContent = totalMi.toFixed(2) + ' miles';
+        document.getElementById('out-r-rate')!.textContent = sym + rate.toFixed(2) + ' / ' + ratePer;
+        document.getElementById('out-r-perTrip')!.textContent = sym + perTripAmount.toFixed(2);
+        document.getElementById('out-r-total')!.textContent = sym + totalAmount.toFixed(2);
     });
 
     document.getElementById('resetReimbBtn')?.addEventListener('click', () => {
-        milesInput.value = '';
-        rateInput.value = '';
-        document.getElementById('out-reimb-dist')!.innerText = '-';
-        document.getElementById('out-rate')!.innerText = '-';
-        document.getElementById('out-reimb-total')!.innerText = 'Total: $0.00';
+        distIn.value = ''; rateIn.value = ''; tripsIn.value = '1';
+        ['out-r-km','out-r-mi','out-r-trips','out-r-totalKm','out-r-totalMi','out-r-rate','out-r-perTrip','out-r-total'].forEach(id => {
+            document.getElementById(id)!.textContent = '-';
+        });
     });
 </script>

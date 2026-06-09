@@ -1,89 +1,171 @@
 ---
-// AnnualCalculator.astro
+// AnnualCalculator.astro - Comprehensive Annual Estimator
 ---
 <div class="calculator-card">
     <div class="input-column">
         <div class="input-row">
-            <label for="dailyCommute">Commute</label>
+            <label>Commute</label>
             <div class="input-wrapper">
-                <input type="number" id="dailyCommute" placeholder="e.g. 30">
-                <select class="dropdown-unit"><option>miles</option><option>km</option></select>
+                <input type="number" id="dailyCommute" placeholder="Daily round trip">
+                <div class="toggle-group">
+                    <button id="comm-km" class="active">km</button>
+                    <button id="comm-miles">miles</button>
+                </div>
             </div>
         </div>
 
         <div class="input-row">
-            <label for="daysPerWeek">Work Days</label>
+            <label>Work Days</label>
             <div class="input-wrapper">
                 <input type="number" id="daysPerWeek" placeholder="e.g. 5" max="7">
-                <select class="dropdown-unit"><option>days/wk</option></select>
+                <span class="unit-label">days / week</span>
             </div>
         </div>
 
         <div class="input-row">
-            <label for="weekendMiles">Weekend</label>
+            <label>Weekend</label>
             <div class="input-wrapper">
-                <input type="number" id="weekendMiles" placeholder="e.g. 50">
-                <select class="dropdown-unit"><option>miles</option><option>km</option></select>
+                <input type="number" id="weekendDriving" placeholder="Avg weekend total">
+                <span class="unit-label">per week</span>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label>Vacations</label>
+            <div class="input-wrapper">
+                <input type="number" id="vacationWeeks" placeholder="e.g. 2" value="0">
+                <span class="unit-label">weeks off</span>
+            </div>
+        </div>
+
+        <div class="section-divider">Fuel Cost Projection (optional)</div>
+
+        <div class="input-row">
+            <label>Vehicle MPG</label>
+            <div class="input-wrapper">
+                <input type="number" id="vehicleMpg" placeholder="e.g. 25">
+                <div class="toggle-group">
+                    <button id="eff-kmpl" class="active">kmpl</button>
+                    <button id="eff-mpg">mpg</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <label>Fuel Price</label>
+            <div class="input-wrapper">
+                <input type="number" id="annualFuelPrice" placeholder="per litre" step="0.01">
+                <select class="dropdown-unit" id="annualCurrency">
+                    <option value="₹">INR ₹</option>
+                    <option value="$">USD $</option>
+                    <option value="€">EUR €</option>
+                    <option value="£">GBP £</option>
+                </select>
             </div>
         </div>
 
         <div class="action-buttons">
             <button class="btn" id="calcAnnualBtn">Calculate</button>
-            <button class="btn" id="resetAnnualBtn">Reset</button>
+            <button class="btn btn-secondary" id="resetAnnualBtn">Reset</button>
         </div>
     </div>
 
     <div class="output-column">
         <table class="result-table">
             <thead>
-                <tr>
-                    <th>Units</th>
-                    <th>Output</th>
-                </tr>
+                <tr><th>Metric</th><th>Output</th></tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Weekly Work Commute</td>
-                    <td id="out-work">-</td>
-                </tr>
-                <tr>
-                    <td>Weekly Total</td>
-                    <td id="out-weekly">-</td>
-                </tr>
+                <tr><td>Weekly Commute</td><td id="out-weekComm">-</td></tr>
+                <tr><td>Weekly Total</td><td id="out-weekTotal">-</td></tr>
+                <tr><td>Monthly Estimate</td><td id="out-monthly">-</td></tr>
+                <tr class="highlight-row"><td>Annual (km)</td><td id="out-annualKm">-</td></tr>
+                <tr class="highlight-row"><td>Annual (miles)</td><td id="out-annualMi">-</td></tr>
+                <tr><td>Working Weeks</td><td id="out-weeks">-</td></tr>
+                <tr><td>Est. Annual Fuel</td><td id="out-annualFuel">-</td></tr>
+                <tr><td>Est. Annual Fuel Cost</td><td id="out-annualCost">-</td></tr>
             </tbody>
         </table>
-        
-        <div class="final-result" id="out-annual">
-            Annual: 0
-        </div>
     </div>
 </div>
 
 <script>
-    const commuteInput = document.getElementById('dailyCommute') as HTMLInputElement;
-    const daysInput = document.getElementById('daysPerWeek') as HTMLInputElement;
-    const weekendInput = document.getElementById('weekendMiles') as HTMLInputElement;
+    const KM_MI = 0.621371;
+    const MI_KM = 1.60934;
+
+    const commuteIn = document.getElementById('dailyCommute') as HTMLInputElement;
+    const daysIn = document.getElementById('daysPerWeek') as HTMLInputElement;
+    const weekendIn = document.getElementById('weekendDriving') as HTMLInputElement;
+    const vacIn = document.getElementById('vacationWeeks') as HTMLInputElement;
+    const mpgIn = document.getElementById('vehicleMpg') as HTMLInputElement;
+    const fuelPriceIn = document.getElementById('annualFuelPrice') as HTMLInputElement;
+    const currSel = document.getElementById('annualCurrency') as HTMLSelectElement;
+
+    let commUnit = 'km';
+    let effUnit = 'kmpl';
+
+    function togSetup(ids: string[], cb: (u: string) => void) {
+        const bs = ids.map(i => document.getElementById(i));
+        bs.forEach(b => b?.addEventListener('click', () => {
+            bs.forEach(x => x?.classList.remove('active'));
+            b?.classList.add('active');
+            cb(b?.textContent?.trim() || '');
+        }));
+    }
+    togSetup(['comm-km','comm-miles'], u => commUnit = u === 'km' ? 'km' : 'miles');
+    togSetup(['eff-kmpl','eff-mpg'], u => effUnit = u);
 
     document.getElementById('calcAnnualBtn')?.addEventListener('click', () => {
-        const commute = parseFloat(commuteInput.value) || 0;
-        const days = parseFloat(daysInput.value) || 0;
-        const weekend = parseFloat(weekendInput.value) || 0;
-        
-        const workMiles = commute * days;
-        const weeklyMiles = workMiles + weekend;
-        const annualMiles = weeklyMiles * 52;
-        
-        document.getElementById('out-work')!.innerText = workMiles > 0 ? workMiles.toString() : '-';
-        document.getElementById('out-weekly')!.innerText = weeklyMiles > 0 ? weeklyMiles.toString() : '-';
-        document.getElementById('out-annual')!.innerText = `Annual: ${annualMiles.toLocaleString()}`;
+        const commute = parseFloat(commuteIn.value) || 0;
+        const days = parseFloat(daysIn.value) || 0;
+        const weekend = parseFloat(weekendIn.value) || 0;
+        const vacWeeks = parseFloat(vacIn.value) || 0;
+        const effRaw = parseFloat(mpgIn.value) || 0;
+        const fuelPrice = parseFloat(fuelPriceIn.value) || 0;
+        const sym = currSel.value;
+
+        const workingWeeks = 52 - vacWeeks;
+        const weeklyComm = commute * days;
+        const weeklyTotal = weeklyComm + weekend;
+
+        // Normalize to km
+        const weeklyKm = commUnit === 'km' ? weeklyTotal : weeklyTotal * MI_KM;
+        const weeklyCommKm = commUnit === 'km' ? weeklyComm : weeklyComm * MI_KM;
+
+        const annualKm = weeklyKm * workingWeeks;
+        const annualMi = annualKm * KM_MI;
+        const monthlyKm = annualKm / 12;
+
+        const unitLabel = commUnit === 'km' ? 'km' : 'mi';
+
+        document.getElementById('out-weekComm')!.textContent = (commUnit === 'km' ? weeklyCommKm : weeklyCommKm * KM_MI).toFixed(0) + ' ' + unitLabel;
+        document.getElementById('out-weekTotal')!.textContent = (commUnit === 'km' ? weeklyKm : weeklyKm * KM_MI).toFixed(0) + ' ' + unitLabel;
+        document.getElementById('out-monthly')!.textContent = (commUnit === 'km' ? monthlyKm : monthlyKm * KM_MI).toFixed(0) + ' ' + unitLabel;
+        document.getElementById('out-annualKm')!.textContent = annualKm.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' km';
+        document.getElementById('out-annualMi')!.textContent = annualMi.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' miles';
+        document.getElementById('out-weeks')!.textContent = workingWeeks + ' weeks';
+
+        // Fuel projection
+        if (effRaw > 0) {
+            const kmpl = effUnit === 'kmpl' ? effRaw : (effRaw * MI_KM) / 3.78541; // mpg to kmpl
+            const annualLitres = annualKm / kmpl;
+            document.getElementById('out-annualFuel')!.textContent = annualLitres.toFixed(0) + ' litres';
+            if (fuelPrice > 0) {
+                document.getElementById('out-annualCost')!.textContent = sym + (annualLitres * fuelPrice).toLocaleString(undefined, {maximumFractionDigits: 0});
+            } else {
+                document.getElementById('out-annualCost')!.textContent = '-';
+            }
+        } else {
+            document.getElementById('out-annualFuel')!.textContent = '-';
+            document.getElementById('out-annualCost')!.textContent = '-';
+        }
     });
 
     document.getElementById('resetAnnualBtn')?.addEventListener('click', () => {
-        commuteInput.value = '';
-        daysInput.value = '';
-        weekendInput.value = '';
-        document.getElementById('out-work')!.innerText = '-';
-        document.getElementById('out-weekly')!.innerText = '-';
-        document.getElementById('out-annual')!.innerText = 'Annual: 0';
+        [commuteIn, daysIn, weekendIn, mpgIn, fuelPriceIn].forEach(i => i.value = '');
+        vacIn.value = '0';
+        ['out-weekComm','out-weekTotal','out-monthly','out-annualKm','out-annualMi','out-weeks','out-annualFuel','out-annualCost'].forEach(id => {
+            document.getElementById(id)!.textContent = '-';
+        });
     });
 </script>
