@@ -1,0 +1,38 @@
+---
+// GasCalculator.astro
+---
+<div class="calculator glass-card">
+    <div class="input-group">
+        <label for="startOdometer">Starting Odometer</label>
+        <input type="number" id="startOdometer" placeholder="e.g. 45000">
+    </div>
+    <div class="input-group">
+        <label for="endOdometer">Ending Odometer</label>
+        <input type="number" id="endOdometer" placeholder="e.g. 45300">
+    </div>
+    <div class="input-group">
+        <label for="gallons">Gallons Added</label>
+        <input type="number" id="gallons" placeholder="e.g. 10.5">
+    </div>
+    <button class="btn primary-btn" id="calcGas">Calculate MPG</button>
+    <div class="result" id="gasResult"></div>
+</div>
+
+<script>
+    const calcGasBtn = document.getElementById('calcGas');
+    if(calcGasBtn) {
+        calcGasBtn.addEventListener('click', () => {
+            const start = parseFloat((document.getElementById('startOdometer') as HTMLInputElement).value);
+            const end = parseFloat((document.getElementById('endOdometer') as HTMLInputElement).value);
+            const gallons = parseFloat((document.getElementById('gallons') as HTMLInputElement).value);
+            
+            if (isNaN(start) || isNaN(end) || isNaN(gallons) || gallons <= 0 || end <= start) {
+                document.getElementById('gasResult')!.innerHTML = '<span class="error">Please enter valid positive numbers. Ending odometer must be greater than starting.</span>';
+                return;
+            }
+            
+            const mpg = (end - start) / gallons;
+            document.getElementById('gasResult')!.innerHTML = `Your vehicle gets <strong>${mpg.toFixed(2)} MPG</strong>.`;
+        });
+    }
+</script>

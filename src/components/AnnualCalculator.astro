@@ -1,0 +1,35 @@
+---
+// AnnualCalculator.astro
+---
+<div class="calculator glass-card">
+    <div class="input-group">
+        <label for="dailyCommute">Daily Commute (Miles Round Trip)</label>
+        <input type="number" id="dailyCommute" placeholder="e.g. 30">
+    </div>
+    <div class="input-group">
+        <label for="daysPerWeek">Work Days Per Week</label>
+        <input type="number" id="daysPerWeek" placeholder="e.g. 5" max="7">
+    </div>
+    <div class="input-group">
+        <label for="weekendMiles">Average Weekend Miles</label>
+        <input type="number" id="weekendMiles" placeholder="e.g. 50">
+    </div>
+    <button class="btn primary-btn" id="calcAnnual">Estimate Annual Mileage</button>
+    <div class="result" id="annualResult"></div>
+</div>
+
+<script>
+    const calcAnnualBtn = document.getElementById('calcAnnual');
+    if(calcAnnualBtn) {
+        calcAnnualBtn.addEventListener('click', () => {
+            const commute = parseFloat((document.getElementById('dailyCommute') as HTMLInputElement).value) || 0;
+            const days = parseFloat((document.getElementById('daysPerWeek') as HTMLInputElement).value) || 0;
+            const weekend = parseFloat((document.getElementById('weekendMiles') as HTMLInputElement).value) || 0;
+            
+            const weeklyMiles = (commute * days) + weekend;
+            const annualMiles = weeklyMiles * 52;
+            
+            document.getElementById('annualResult')!.innerHTML = `Estimated Annual Driving: <strong>${annualMiles.toLocaleString()} miles/year</strong>.`;
+        });
+    }
+</script>

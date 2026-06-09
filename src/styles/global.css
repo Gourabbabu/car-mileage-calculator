@@ -1,21 +1,74 @@
 :root {
-  --bg-color: #f4f7f6;
-  --text-color: #1a1a1a;
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --border-color: rgba(0, 0, 0, 0.1);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-border: rgba(255, 255, 255, 0.5);
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme='dark'] {
-  --bg-color: #121212;
-  --text-color: #f1f1f1;
-  --card-bg: rgba(30, 30, 30, 0.7);
-  --primary: #60a5fa;
-  --primary-hover: #3b82f6;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --bg-color: #0f172a;
+    --text-color: #f8fafc;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --input-bg: #1e293b;
+    --input-border: #334155;
+    --nav-bg: rgba(15, 23, 42, 0.8);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Navigation Styles */
+.navbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--card-border);
+    z-index: 100;
+    padding: 1rem 0;
+}
+
+.nav-content {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: var(--primary);
 }
 
 body {
@@ -164,6 +217,18 @@ h2 {
   padding: 0.5rem;
   border-radius: 50%;
   transition: background-color 0.2s ease;
+}
+@media (max-width: 600px) {
+    .nav-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
 }
 
 .theme-toggle:hover {

@@ -1,0 +1,33 @@
+---
+// ReimbursementCalculator.astro
+---
+<div class="calculator glass-card">
+    <div class="input-group">
+        <label for="businessMiles">Business Miles Driven</label>
+        <input type="number" id="businessMiles" placeholder="e.g. 150">
+    </div>
+    <div class="input-group">
+        <label for="reimbursementRate">Reimbursement Rate ($/mile)</label>
+        <input type="number" id="reimbursementRate" placeholder="e.g. 0.67" step="0.01" value="0.67">
+    </div>
+    <button class="btn primary-btn" id="calcReimbursement">Calculate Reimbursement</button>
+    <div class="result" id="reimbursementResult"></div>
+</div>
+
+<script>
+    const calcReimbursementBtn = document.getElementById('calcReimbursement');
+    if(calcReimbursementBtn) {
+        calcReimbursementBtn.addEventListener('click', () => {
+            const miles = parseFloat((document.getElementById('businessMiles') as HTMLInputElement).value);
+            const rate = parseFloat((document.getElementById('reimbursementRate') as HTMLInputElement).value);
+            
+            if (isNaN(miles) || isNaN(rate) || miles <= 0 || rate <= 0) {
+                document.getElementById('reimbursementResult')!.innerHTML = '<span class="error">Please enter valid positive numbers.</span>';
+                return;
+            }
+            
+            const total = miles * rate;
+            document.getElementById('reimbursementResult')!.innerHTML = `Total Reimbursement: <strong>$${total.toFixed(2)}</strong>.`;
+        });
+    }
+</script>
